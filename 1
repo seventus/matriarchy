@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matriarchy Card Generator</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Matriarchy Card Generator</h1>
+    <form id="cardForm">
+      <label for="name">Actress Name:</label>
+      <input type="text" id="name" required>
+
+      <label for="age">Age:</label>
+      <input type="number" id="age" required>
+
+      <label for="alliance">Alliance:</label>
+      <select id="alliance">
+        <option value="Panthera">Panthera</option>
+        <option value="Obsidian Flame">Obsidian Flame</option>
+        <option value="Azure Veil">Azure Veil</option>
+      </select>
+
+      <label for="roleBonus">Played a Queen/General?</label>
+      <input type="checkbox" id="roleBonus">
+
+      <button type="submit">Generate Card</button>
+    </form>
+
+    <div id="cardOutput" class="card hidden">
+      <h2 id="cardName"></h2>
+      <p><strong>Type:</strong> <span id="cardType"></span></p>
+      <p><strong>Attack:</strong> <span id="cardAttack"></span></p>
+      <p><strong>Defense:</strong> <span id="cardDefense"></span></p>
+      <p><strong>Special Ability:</strong> <span id="cardAbility"></span></p>
+      <p><strong>Alliance Boost:</strong> <span id="allianceBoost"></span></p>
+      <button id="downloadButton">Download Card</button>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 10px;
+}
+
+input, select, button {
+  padding: 10px;
+  margin-top: 5px;
+}
+
+button {
+  background: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+.card {
+  margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+}
+
+.hidden {
+  display: none;
+}
+
+#downloadButton {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+#downloadButton:hover {
+  background: #218838;
+}
+document.getElementById('cardForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // Get input values
+  const name = document.getElementById('name').value;
+  const age = parseInt(document.getElementById('age').value);
+  const alliance = document.getElementById('alliance').value;
+  const roleBonus = document.getElementById('roleBonus').checked;
+
+  // Determine card type based on age and role bonus
+  let cardType;
+  if (age >= 40) {
+    cardType = roleBonus ? 'Queen (70%)' : 'Queen (50%)';
+  } else if (age >= 35) {
+    cardType = roleBonus ? 'General (55%)' : 'General (40%)';
+  } else if (age >= 30) {
+    cardType = roleBonus ? 'Warrior (60%)' : 'Warrior (50%)';
+  } else {
+    cardType = 'Warrior (70%)';
+  }
+
+  // Assign stats based on card type
+  let attack, defense, ability;
+  switch (cardType.split(' ')[0]) {
+    case 'Queen':
+      attack = 90;
+      defense = 80;
+      ability = 'Royal Command: Double alliance boost.';
+      break;
+    case 'General':
+      attack = 70;
+      defense = 50;
+      ability = 'Backstab: Deal 150% damage if attacking first.';
+      break;
+    case 'Warrior':
+      attack = 60;
+      defense = 60;
+      ability = 'Berserk: +20% Attack when <50% Defense.';
+      break;
+    default:
+      attack = 20;
+      defense = 60;
+      ability = 'Field Medic: Heal 30 Defense to 2 allies.';
+  }
+
+  // Alliance boost
+  const allianceBoost = alliance === 'Panthera' ? '+20% Attack' :
+                        alliance === 'Obsidian Flame' ? '+15% Defense' :
+                        '+10% Healing';
+
+  // Display card
+  document.getElementById('cardName').textContent = name;
+  document.getElementById('cardType').textContent = cardType;
+  document.getElementById('cardAttack').textContent = attack;
+  document.getElementById('cardDefense').textContent = defense;
+  document.getElementById('cardAbility').textContent = ability;
+  document.getElementById('allianceBoost').textContent = allianceBoost;
+  document.getElementById('cardOutput').classList.remove('hidden');
+});
+
+// Download card as image
+document.getElementById('downloadButton').addEventListener('click', function () {
+  const cardElement = document.getElementById('cardOutput');
+
+  // Use html2canvas to capture the card
+  html2canvas(cardElement).then(canvas => {
+    // Convert the canvas to an image URL
+    const image = canvas.toDataURL('image/png');
+
+    // Create a temporary link element
+    const link = document.createElement('a');
+    link.href = image;
+    link.download = 'matriarchy_card.png'; // File name
+    link.click(); // Trigger the download
+  });
+});
